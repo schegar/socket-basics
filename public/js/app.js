@@ -1,15 +1,21 @@
+var name = getQueryVariable("name") || "Anonymus";
+var room = getQueryVariable("room");
 var socket = io();
 
 socket.on("connect", function () {
-	console.log("Connected to socket.io server!");
+	console.log(name + " connected to room " + room + " on socket.io server!");
 })
 
 socket.on("message", function (message) {
 	var timestamp = moment.utc(message.timestamp).local().format("HH:mm:ss");
+	var $message = jQuery(".messages");
+
 	console.log("Message: " + message.text + "\n" +
 				"Time:    " + timestamp);
 
-	jQuery(".messages").append("<p><strong>" + timestamp + "</strong> " +  message.text + "</p>")
+	$message.append("<p><strong>" + message.name + " " + timestamp + "</strong");
+	$message.append("<p>" + message.text + "</p>")
+	//jQuery(".messages").append("<p><strong>" + timestamp + "</strong> " +  message.text + "</p>")
 })
 
 var $form = jQuery("#message-form");
@@ -20,6 +26,7 @@ $form.on("submit", function (event) {
 	var $message = $form.find("input[name=message]")
 
 	socket.emit("message", {
+		name: name,
 		text: $message.val()
 	});
 
